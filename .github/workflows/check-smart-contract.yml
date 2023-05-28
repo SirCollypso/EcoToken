@@ -1,0 +1,32 @@
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'smart_contract/**'
+      - '.github/workflows/check-smart-contract.yml'
+  pull_request:
+    paths:
+      - 'smart_contract/**'
+      - '.github/workflows/check-smart-contract.yml'
+
+name: check
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        working-directory: smart_contract
+        run: npm install
+
+      - name: Run Tests
+        working-directory: smart_contract
+        run: npx hardhat test
