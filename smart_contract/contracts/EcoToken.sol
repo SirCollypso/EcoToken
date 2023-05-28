@@ -111,6 +111,11 @@ contract EcoToken {
     function getBusinessStatus() external view returns (bool) {
         return clients[msg.sender].isBusiness;
     }
+    
+    function getVoteStatus(uint256 _eventId) external view onlyNonBusinessClient() returns (int8) {
+        require(participated[msg.sender][_eventId], "You have not participated in the event");
+        return eventVotes[msg.sender][_eventId];
+    }
 
     function getEventCount() external view returns (uint256) {
         return events.length;
@@ -121,6 +126,10 @@ contract EcoToken {
 
         Event storage eventItem = events[_eventId];
         return (eventItem.id, eventItem.description, eventItem.reward, eventItem.organizer, eventItem.rating);
+    }
+
+    function getEvents() external view returns (Event[] memory) {
+        return events;
     }
 
     function getCreatedEventCount() external view onlyBusinessClient returns (uint256) {
@@ -134,6 +143,16 @@ contract EcoToken {
         return (eventItem.id, eventItem.description, eventItem.reward, eventItem.organizer, eventItem.rating);
     }
 
+    function getCreatedEvents() external view onlyBusinessClient() returns (Event[] memory) {
+        Event[] memory _createdEvents = new Event[](createdEvents[msg.sender].length);
+
+        for (uint i = 0; i < createdEvents[msg.sender].length; i++) {
+            _createdEvents[i] = events[createdEvents[msg.sender][i]];
+        }
+
+        return _createdEvents;
+    }
+
     function getParticipatedEventCount() external view onlyNonBusinessClient returns (uint256) {
         return participatedEvents[msg.sender].length;
     }
@@ -145,4 +164,13 @@ contract EcoToken {
         return (eventItem.id, eventItem.description, eventItem.reward, eventItem.organizer, eventItem.rating);
     }
 
+    function getParticipatedEvents() external view onlyNonBusinessClient() returns (Event[] memory) {
+        Event[] memory _participatedEvents = new Event[](participatedEvents[msg.sender].length);
+
+        for (uint i = 0; i < participatedEvents[msg.sender].length; i++) {
+            _participatedEvents[i] = events[participatedEvents[msg.sender][i]];
+        }
+
+        return _participatedEvents;
+    }
 }
