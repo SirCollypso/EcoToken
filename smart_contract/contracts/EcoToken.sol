@@ -70,6 +70,7 @@ contract EcoToken {
     function markParticipant(address _participant, uint256 _eventId) external onlyBusinessClient {
         Event storage eventItem = events[_eventId];
         require(eventItem.organizer == msg.sender, "Only the event organizer can mark participants");
+        require(!clients[_participant].isBusiness, "Only non-business clients can be marked as participants");
         require(clients[eventItem.organizer].ecoTokenBalance >= eventItem.reward, "Insufficient EcoTokens");
 
         participated[_participant][_eventId] = true;
@@ -92,7 +93,7 @@ contract EcoToken {
 
     function transferEcotokens(address _to, uint256 _amount) external onlyNonBusinessClient {
         require(clients[_to].isBusiness, "You can only transfer EcoTokens to a business client");
-        require(clients[msg.sender].ecoTokenBalance >= _amount, "Insufficient EcoTokens");
+        require(clients[msg.sender].ecoTokenBalance >= _amount && _amount > 0, "Insufficient EcoTokens");
 
         uint256 bonusEcotokens = 0;
 
@@ -121,11 +122,10 @@ contract EcoToken {
         return events.length;
     }
 
-    function getEvent(uint256 _eventId) external view returns (uint256, string memory, uint256, address, int256) {
+    function getEvent(uint256 _eventId) external view returns (Event memory) {
         require(_eventId < events.length, "Event does not exist");
 
-        Event storage eventItem = events[_eventId];
-        return (eventItem.id, eventItem.description, eventItem.reward, eventItem.organizer, eventItem.rating);
+        return events[_eventId];
     }
 
     function getEvents() external view returns (Event[] memory) {
@@ -136,11 +136,10 @@ contract EcoToken {
         return createdEvents[msg.sender].length;
     }
 
-    function getCreatedEvent(uint256 _eventIndex) external view onlyBusinessClient returns (uint256, string memory, uint256, address, int256) {
+    function getCreatedEvent(uint256 _eventIndex) external view onlyBusinessClient returns (Event memory) {
         require(_eventIndex < createdEvents[msg.sender].length, "Event does not exist");
 
-        Event storage eventItem = events[createdEvents[msg.sender][_eventIndex]];
-        return (eventItem.id, eventItem.description, eventItem.reward, eventItem.organizer, eventItem.rating);
+        return events[createdEvents[msg.sender][_eventIndex]];
     }
 
     function getCreatedEvents() external view onlyBusinessClient() returns (Event[] memory) {
@@ -157,11 +156,10 @@ contract EcoToken {
         return participatedEvents[msg.sender].length;
     }
 
-    function getParticipatedEvent(uint256 _eventIndex) external view onlyNonBusinessClient returns (uint256, string memory, uint256, address, int256) {
+    function getParticipatedEvent(uint256 _eventIndex) external view onlyNonBusinessClient returns (Event memory) {
         require(_eventIndex < participatedEvents[msg.sender].length, "Event does not exist");
 
-        Event storage eventItem = events[participatedEvents[msg.sender][_eventIndex]];
-        return (eventItem.id, eventItem.description, eventItem.reward, eventItem.organizer, eventItem.rating);
+        return events[participatedEvents[msg.sender][_eventIndex]];
     }
 
     function getParticipatedEvents() external view onlyNonBusinessClient() returns (Event[] memory) {
