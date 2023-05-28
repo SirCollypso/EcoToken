@@ -1,36 +1,50 @@
-const {
-  time,
-  loadFixture,
-} = require("@nomicfoundation/hardhat-network-helpers");
-const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
+const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
 const { expect } = require("chai");
 
 describe("EcoToken", function () {
-  // We define a fixture to reuse the same setup in every test.
-  // We use loadFixture to run this setup once, snapshot that state,
-  // and reset Hardhat Network to that snapshot in every test.
+  
   async function deployEcoTokenFixture() {
-
     const baseValueEth = 1;
+    const baseValueEcoToken = 1;
     const rewardRate = 1;
 
-    // Contracts are deployed using the first signer/account by default
-    const [owner, otherAccount] = await ethers.getSigners();
-
     const EcoToken = await ethers.getContractFactory("EcoToken");
-    const ecoToken = await EcoToken.deploy(baseValueEth, rewaredRate);
+    const ecoToken = await EcoToken.deploy(baseValueEth, baseValueEcoToken, rewardRate);
 
-    return { ecoToken, baseValueEth, rewardRate, owner, otherAccount };
+    let [signerAddress, account2Address, account3Address] = await ethers.provider.listAccounts();
+
+    return { ecoToken, baseValueEth, baseValueEcoToken, rewardRate, 
+      addr1: (await ethers.getSigner(signerAddress)), 
+      addr2: (await ethers.getSigner(account2Address)), 
+      addr3: (await ethers.getSigner(account3Address)) };
   }
 
   describe("Deployment", function () {
-    it("Should set the right unlockTime", async function () {
-      //const { baseValueEth, rewardRate } = await loadFixture(deployEcoTokenFixture);
+    
+    let _ecoToken;
+    let _addr1, _addr2, _addr3;
 
-      //expect(await lock.unlockTime()).to.equal(unlockTime);
+    before("Deploy the contract instance first", async function () {
+      const {ecoToken, addr1, addr2, addr3} = await loadFixture(deployEcoTokenFixture);
+      _ecoToken = ecoToken;
+      _addr1 = addr1;
+      _addr2 = addr2;
+      _addr3 = addr3;
     });
 
-    it("Should set the right owner", async function () {
+    it("Should set correct default balance", async function () {
+      expect(await _ecoToken.connect(_addr1).getClientBalance()).to.equal(0);
+      expect(await _ecoToken.connect(_addr2).getClientBalance()).to.equal(0);
+      expect(await _ecoToken.connect(_addr3).getClientBalance()).to.equal(0);
+    });
+
+    it("Should set correct default business status", async function () {
+      expect(await _ecoToken.connect(_addr1).getBusinessStatus()).to.equal(false);
+      expect(await _ecoToken.connect(_addr2).getBusinessStatus()).to.equal(false);
+      expect(await _ecoToken.connect(_addr3).getBusinessStatus()).to.equal(false);
+    });
+    /*
+    it("Should set the correct owner", async function () {
       const { lock, owner } = await loadFixture(deployOneYearLockFixture);
 
       expect(await lock.owner()).to.equal(owner.address);
@@ -54,8 +68,25 @@ describe("EcoToken", function () {
         "Unlock time should be in the future"
       );
     });
+    */
   });
 
+  describe("Business Registration", function () {
+    
+    it("Should properly register business accounts", async function () {
+      const {ecoToken, baseValueEth, addr1, addr2} = await loadFixture(deployEcoTokenFixture);
+      await ecoToken.connect(addr1).registerAsBusiness({ value: baseValueEth });
+      expect(await ecoToken.connect(addr1).getBusinessStatus()).to.equal(true);
+      await expect(ecoToken.connect(addr1).registerAsBusiness({ value: baseValueEth})).to.be.revertedWith("Only non-business clients can call this function");
+      await expect(ecoToken.connect(addr2).registerAsBusiness({ value: baseValueEth - 1 })).to.be.revertedWith("Insufficient Ether sent for registration");
+      expect(await ecoToken.connect(addr2).getBusinessStatus()).to.equal(false);
+      await ecoToken.connect(addr2).registerAsBusiness({ value: baseValueEth + 1 });
+      expect(await ecoToken.connect(addr2).getBusinessStatus()).to.equal(true);
+    });
+
+  });
+
+  /*
   describe("Withdrawals", function () {
     describe("Validations", function () {
       it("Should revert with the right error if called too soon", async function () {
@@ -121,4 +152,5 @@ describe("EcoToken", function () {
       });
     });
   });
+  */
 });
