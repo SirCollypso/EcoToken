@@ -7,7 +7,7 @@ import { shortenAddress } from "../utils/shortenAddress";
 const EventCard = ({ id, organizer, reward, description, rating}) => {
 
   return (
-    <div className="bg-[#181918] m-4 flex flex-1
+    <div className="blue-glassmorphism m-4 flex flex-1
       2xl:min-w-[450px]
       2xl:max-w-[500px]
       sm:min-w-[270px]
@@ -34,16 +34,12 @@ const OngoingEvents = () => {
   const { ongoingEvents } = useContext(EcoTokenContext);
 
   return (
-    <div className="flex w-full justify-center items-center 2xl:px-20 gradient-bg-transactions">
-      <div className="flex flex-col md:p-12 py-12 px-4">
-        <h3 className="text-white text-3xl text-center my-2">
-          Ongoing Events
-        </h3>
-        <div className="flex flex-wrap justify-center items-center mt-10">
-          {[...ongoingEvents].reverse().map((event, i) => (
-            <EventCard key={i} {...event} />
-          ))}
-        </div>
+    <div className="flex flex-col md:p-12 py-12 px-4">
+      <h3 className="text-white text-3xl text-center my-2">Ongoing Events</h3>
+      <div className="flex flex-wrap justify-center items-center mt-10">
+        {[...ongoingEvents].reverse().map((event, i) => (
+          <EventCard key={i} {...event} />
+        ))}
       </div>
     </div>
   );

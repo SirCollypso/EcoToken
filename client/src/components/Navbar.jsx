@@ -18,6 +18,7 @@ const Navbar = () => {
         <img src={logo} alt="logo" className="w-20" />
       </div>
       <ul className="text-white md:flex hidden list-none flex-row justify-between items-center flex-initial">
+        <li className={`mx-4 cursor-pointer`}>{<Link to="/">For Individuals</Link>}</li>
         <li className={`mx-4 cursor-pointer`}>{<Link to="/business">For Businesses</Link>}</li> 
         <li className={`mx-4 cursor-pointer`}>{<Link to="/about">About Us</Link>}</li>      
       </ul>
@@ -31,6 +32,7 @@ const Navbar = () => {
         {toggleMenu && (
           <ul className="z-10 fixed -top-0 -right-2 p-3 w-[70vw] h-screen shadow-2xl md:hidden list-none flex flex-col justify-start items-end rounded-md blue-glassmorphism text-white animate-slide-in">
             <li className="text-xl w-full my-2"><AiOutlineClose onClick={() => setToggleMenu(false)} /></li>
+              <li className={`mx-4 cursor-pointer my-2 text-lg`}>{<Link to="/">For Individuals</Link>}</li>
               <li className={`mx-4 cursor-pointer my-2 text-lg`}>{<Link to="/business">For Businesses</Link>}</li> 
               <li className={`mx-4 cursor-pointer my-2 text-lg`}>{<Link to="/about">About Us</Link>}</li> 
           </ul>

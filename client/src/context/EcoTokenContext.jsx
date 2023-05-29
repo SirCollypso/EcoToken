@@ -15,51 +15,59 @@ const createEthereumContract = async () => {
 };
 
 export const EcoTokenProvider = ({ children }) => {
-  const [formData, setformData] = useState({ addressTo: "", amount: "" });
+  
+  const [businessFormData, setBusinessFormData] = useState({ address: "", eventID: "", description: "", reward: "" });
+  const [individualFormData, setIndividualFormData] = useState({ address: "", amount: "", eventID: "", score: "" });
   const [currentAccount, setCurrentAccount] = useState("");
   const [businessStatus, setBusinessStatus] = useState(localStorage.getItem("businessStatus"));
   const [clientBalance, setClientBalance] = useState(localStorage.getItem("clientBalance"));
-  const [isLoading, setIsLoading] = useState(false);
-  const [createdEventCount, setCreatedEventCount] = useState(localStorage.getItem("createdEventCount"));
-  const [createdEvents, setCreatedEvents] = useState(localStorage.getItem("createdEvents"));
-
-  const [ongoingEventCount, setOngoingEventCount] = useState(localStorage.getItem("ongoingEventCount"));
+  const [createdEvents, setCreatedEvents] = useState([]);
+  const [participatedEvents, setParticipatedEvents] = useState([]);
   const [ongoingEvents, setOngoingEvents] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = (e, name) => {
-    setformData((prevState) => ({ ...prevState, [name]: e.target.value }));
+  const handleBusinessChange = (e, name) => {
+    setBusinessFormData((prevState) => ({ ...prevState, [name]: e.target.value }));
   };
 
-  const checkIfWalletIsConnected = async () => {
+  const handleIndividualChange = (e, name) => {
+    setIndividualFormData((prevState) => ({ ...prevState, [name]: e.target.value }));
+  };
+
+  const updateAllStates = async() => {
     try { 
       if (!ethereum) return alert("Please install MetaMask.");
       const accounts = await ethereum.request({ method: "eth_accounts" });
       if (accounts.length) {
         setCurrentAccount(accounts[0]);
-        await getAllOngoingEvents();
-        await getBusinessStatus();
-        await getClientBalance();
+        await updateBusinessStatus();
+        await updateClientBalance();
+        if (businessStatus === true) {
+          updateCreatedEvents();
+        } else if (businessStatus === false) {
+          updateParticipatedEvents();
+        }
+        await updateOngoingEvents();
       } else {
         console.log("No accounts found");
       }
     } catch (error) {
       console.log(error);
     }
-  };
+  }
 
   const connectWallet = async () => {
     try {
       if (!ethereum) return alert("Please install MetaMask.");
       const accounts = await ethereum.request({ method: "eth_requestAccounts", });
       setCurrentAccount(accounts[0]);
-      window.location.reload();
     } catch (error) {
       console.log(error);
       throw new Error("No ethereum object");
     }
   };
 
-  const getBusinessStatus = async () => {
+  const updateBusinessStatus = async () => {
     try {
       if (ethereum) {
         const ecoTokenContract = await createEthereumContract();
@@ -83,8 +91,7 @@ export const EcoTokenProvider = ({ children }) => {
         await transactionHash.wait();
         console.log(`Success - ${transactionHash.hash}`);
         setIsLoading(false);
-        getBusinessStatus();
-        window.location.reload();
+        updateBusinessStatus();
       }
     } catch (error) {
       console.log(error);
@@ -92,7 +99,7 @@ export const EcoTokenProvider = ({ children }) => {
     }
   };
 
-  const getClientBalance = async () => {
+  const updateClientBalance = async () => {
     try {
       if (ethereum) {
         const ecoTokenContract = await createEthereumContract();
@@ -105,30 +112,17 @@ export const EcoTokenProvider = ({ children }) => {
     }
   };
 
-  const checkIfCreatedEventsExist = async () => {
-    try {
-      if (ethereum) {
-        const ecoTokenContract = await createEthereumContract();
-        const currentCreatedEventCount = await ecoTokenContract.getCreatedEventCount();
-        setCreatedEventCount(currentCreatedEventCount);
-      }
-    } catch (error) {
-      console.log(error);
-      throw new Error("No ethereum object");
-    }
-  };
-
-  const getCreatedEvents = async () => {
+  const updateCreatedEvents = async () => {
     try {
       if (ethereum) {   
         const ecoTokenContract = await createEthereumContract();
         const createdEvents = await ecoTokenContract.getCreatedEvents();
         const structuredEvents = createdEvents.map((event) => ({
-          id: event.id,
-          description: event.description,
-          reward: event.reward,
-          organizer: event.organizer,
-          rating: event.rating
+          id: event.id.toString(),
+          description: event.description.toString(),
+          reward: event.reward.toString(),
+          organizer: event.organizer.toString(),
+          rating: event.rating.toString()
         }));
         console.log(structuredEvents);
         setCreatedEvents(structuredEvents);
@@ -140,30 +134,39 @@ export const EcoTokenProvider = ({ children }) => {
     }
   };
 
-  const checkIfOngoingEventsExist = async () => {
-    try {
-      if (ethereum) {
-        const ecoTokenContract = await createEthereumContract();
-        const currentOngoingEventCount = await ecoTokenContract.getEventCount();
-        window.localStorage.setItem("ongoingEventCount", currentOngoingEventCount);
-      }
-    } catch (error) {
-      console.log(error);
-      throw new Error("No ethereum object");
-    }
-  };
-
-  const getAllOngoingEvents = async () => {
+  const updateParticipatedEvents = async () => {
     try {
       if (ethereum) {   
         const ecoTokenContract = await createEthereumContract();
-        const availableEvents = await ecoTokenContract.getEvents();
-        const structuredEvents = availableEvents.map((event) => ({
-          id: event.id,
-          description: event.description,
-          reward: event.reward,
-          organizer: event.organizer,
-          rating: event.rating
+        const participatedEvents = await ecoTokenContract.getParticipatedEvents();
+        const structuredEvents = participatedEvents.map((event) => ({
+          id: event.id.toString(),
+          description: event.description.toString(),
+          reward: event.reward.toString(),
+          organizer: event.organizer.toString(),
+          rating: event.rating.toString()
+        }));
+        console.log(structuredEvents);
+        setParticipatedEvents(structuredEvents);
+      } else {
+        console.log("Ethereum is not present");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const updateOngoingEvents = async () => {
+    try {
+      if (ethereum) {   
+        const ecoTokenContract = await createEthereumContract();
+        const ongoingEvents = await ecoTokenContract.getEvents();
+        const structuredEvents = ongoingEvents.map((event) => ({
+          id: event.id.toString(),
+          description: event.description.toString(),
+          reward: event.reward.toString(),
+          organizer: event.organizer.toString(),
+          rating: event.rating.toString()
         }));
         console.log(structuredEvents);
         setOngoingEvents(structuredEvents);
@@ -175,51 +178,81 @@ export const EcoTokenProvider = ({ children }) => {
     }
   };
 
-  /*
-  const sendTransaction = async () => {
+  const markPartcipant = async () => {
     try {
       if (ethereum) {
-        const { addressTo, amount, keyword, message } = formData;
-        const transactionsContract = await createEthereumContract();
-        const parsedAmount = ethers.utils.parseEther(amount);
-
-        await ethereum.request({
-          method: "eth_sendTransaction",
-          params: [{
-            from: currentAccount,
-            to: addressTo,
-            gas: "0x5208",
-            value: parsedAmount._hex,
-          }],
-        });
-
-        const transactionHash = await transactionsContract.addToBlockchain(addressTo, parsedAmount, message, keyword);
-
+        const { address, eventID } = businessFormData;
+        const ecoTokenContract = await createEthereumContract(); 
+        const transactionHash = await ecoTokenContract.markParticipant(address, eventID);
         setIsLoading(true);
         console.log(`Loading - ${transactionHash.hash}`);
         await transactionHash.wait();
         console.log(`Success - ${transactionHash.hash}`);
         setIsLoading(false);
-
-        const transactionsCount = await transactionsContract.getTransactionCount();
-
-        setTransactionCount(transactionsCount.toNumber());
-        window.location.reload();
-      } else {
-        console.log("No ethereum object");
       }
     } catch (error) {
       console.log(error);
-
       throw new Error("No ethereum object");
     }
-  };
-  */
+  }
+
+  const createEvent = async () => {
+    try {
+      if (ethereum) {
+        const { description, reward } = businessFormData;
+        const ecoTokenContract = await createEthereumContract(); 
+        const transactionHash = await ecoTokenContract.createEvent(description, reward);
+        setIsLoading(true);
+        console.log(`Loading - ${transactionHash.hash}`);
+        await transactionHash.wait();
+        console.log(`Success - ${transactionHash.hash}`);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.log(error);
+      throw new Error("No ethereum object");
+    }
+  }
+
+  const transferEcotokens = async () => {
+    try {
+      if (ethereum) {
+        const { address, amount } = individualFormData;
+        const ecoTokenContract = await createEthereumContract(); 
+        const transactionHash = await ecoTokenContract.transferEcotokens(address, amount);
+        setIsLoading(true);
+        console.log(`Loading - ${transactionHash.hash}`);
+        await transactionHash.wait();
+        console.log(`Success - ${transactionHash.hash}`);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.log(error);
+      throw new Error("No ethereum object");
+    }
+  }
+
+  const voteForEvent = async () => {
+    try {
+      if (ethereum) {
+        const { eventID, score } = individualFormData;
+        const ecoTokenContract = await createEthereumContract(); 
+        const transactionHash = await ecoTokenContract.voteForEvent(eventID, score);
+        setIsLoading(true);
+        console.log(`Loading - ${transactionHash.hash}`);
+        await transactionHash.wait();
+        console.log(`Success - ${transactionHash.hash}`);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.log(error);
+      throw new Error("No ethereum object");
+    }
+  }
 
   useEffect(() => {
-    checkIfWalletIsConnected();
-    checkIfOngoingEventsExist();
-  }, [clientBalance, ongoingEventCount]);
+    updateAllStates();
+  }, [currentAccount, businessStatus, isLoading]);
 
   return (
     <EcoTokenContext.Provider
@@ -229,11 +262,18 @@ export const EcoTokenProvider = ({ children }) => {
         clientBalance,
         businessStatus,
         registerAsBusiness,
-        ongoingEventCount,
-        isLoading,
+        createdEvents,
+        participatedEvents,
         ongoingEvents,
-        handleChange,
-        formData,
+        createEvent,
+        markPartcipant,
+        transferEcotokens,
+        voteForEvent,
+        isLoading,
+        handleBusinessChange,
+        handleIndividualChange,
+        businessFormData,
+        individualFormData
       }}
     >
       {children}
