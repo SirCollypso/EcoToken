@@ -1,10 +1,11 @@
 import React from "react";
-import { Navbar, Footer } from "../components";
+import { Navbar, BusinessMain, Footer } from "../components";
 
 const Business = () => (
-  <div className="min-h-screen">
-    <div className="gradient-bg-welcome">
+    <div className="flex flex-col min-h-screen">
+    <div className="flex-1 gradient-bg-welcome">
       <Navbar />
+      <BusinessMain />
     </div>
     <Footer />
   </div>

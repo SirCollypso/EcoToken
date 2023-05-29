@@ -19,8 +19,10 @@ export const EcoTokenProvider = ({ children }) => {
   const [currentAccount, setCurrentAccount] = useState("");
   const [businessStatus, setBusinessStatus] = useState(localStorage.getItem("businessStatus"));
   const [clientBalance, setClientBalance] = useState(localStorage.getItem("clientBalance"));
-
   const [isLoading, setIsLoading] = useState(false);
+  const [createdEventCount, setCreatedEventCount] = useState(localStorage.getItem("createdEventCount"));
+  const [createdEvents, setCreatedEvents] = useState(localStorage.getItem("createdEvents"));
+
   const [ongoingEventCount, setOngoingEventCount] = useState(localStorage.getItem("ongoingEventCount"));
   const [ongoingEvents, setOngoingEvents] = useState([]);
 
@@ -70,6 +72,26 @@ export const EcoTokenProvider = ({ children }) => {
     }
   };
 
+  const registerAsBusiness = async () => {
+    try {
+      if (ethereum) {
+        const ecoTokenContract = await createEthereumContract(); 
+        const options = {value: 1};
+        const transactionHash = await ecoTokenContract.registerAsBusiness(options);
+        setIsLoading(true);
+        console.log(`Loading - ${transactionHash.hash}`);
+        await transactionHash.wait();
+        console.log(`Success - ${transactionHash.hash}`);
+        setIsLoading(false);
+        getBusinessStatus();
+        window.location.reload();
+      }
+    } catch (error) {
+      console.log(error);
+      throw new Error("No ethereum object");
+    }
+  };
+
   const getClientBalance = async () => {
     try {
       if (ethereum) {
@@ -80,6 +102,41 @@ export const EcoTokenProvider = ({ children }) => {
     } catch (error) {
       console.log(error);
       throw new Error("No ethereum object");
+    }
+  };
+
+  const checkIfCreatedEventsExist = async () => {
+    try {
+      if (ethereum) {
+        const ecoTokenContract = await createEthereumContract();
+        const currentCreatedEventCount = await ecoTokenContract.getCreatedEventCount();
+        setCreatedEventCount(currentCreatedEventCount);
+      }
+    } catch (error) {
+      console.log(error);
+      throw new Error("No ethereum object");
+    }
+  };
+
+  const getCreatedEvents = async () => {
+    try {
+      if (ethereum) {   
+        const ecoTokenContract = await createEthereumContract();
+        const createdEvents = await ecoTokenContract.getCreatedEvents();
+        const structuredEvents = createdEvents.map((event) => ({
+          id: event.id,
+          description: event.description,
+          reward: event.reward,
+          organizer: event.organizer,
+          rating: event.rating
+        }));
+        console.log(structuredEvents);
+        setCreatedEvents(structuredEvents);
+      } else {
+        console.log("Ethereum is not present");
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -167,12 +224,14 @@ export const EcoTokenProvider = ({ children }) => {
   return (
     <EcoTokenContext.Provider
       value={{
-        clientBalance,
-        ongoingEventCount,
+        currentAccount,
         connectWallet,
+        clientBalance,
+        businessStatus,
+        registerAsBusiness,
+        ongoingEventCount,
         isLoading,
         ongoingEvents,
-        currentAccount,
         handleChange,
         formData,
       }}

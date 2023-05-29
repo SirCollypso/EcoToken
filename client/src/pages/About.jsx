@@ -3,7 +3,7 @@ import { Navbar, Company, Footer } from "../components";
 
 const About = () => (
   <div className="flex flex-col min-h-screen">
-    <div className="gradient-bg-welcome">
+    <div className="flex-1 gradient-bg-welcome">
       <Navbar />
       <Company />
     </div>
