@@ -81,6 +81,13 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
+.gradient-bg-content {
+  background-color: #1baf8f;
+  background-image: 
+    radial-gradient(at 0% 100%, rgb(35, 202, 133) 0, transparent 50%), 
+
+}
+
 
 @layer utilities {
   input[type="number"]::-webkit-inner-spin-button,
