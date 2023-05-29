@@ -1,3 +1,95 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap");
+
+
+* html {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+
+body {
+  margin: 0;
+  font-family: "Open Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+.gradient-bg-welcome {
+  background-color:#1baf8f; /* top background */
+  background-image: 
+    radial-gradient(at 0% 0%, rgb(35, 202, 133) 0, transparent 50%), /* top left corner of the whole background */
+    radial-gradient(at 50% 0%, rgb(43, 210, 166) 0, transparent 50%), /* top middle of the whole background */
+    radial-gradient(at 100% 0%, rgb(35, 202, 133) 0, transparent 50%); /* top right corner of the whole background */
+}
+
+
+.gradient-bg-transactions {
+  background-color: #1baf8f;
+  background-image: 
+  radial-gradient(at 100% 100%, rgb(35, 202, 133) 0, transparent 50%),
+}
+
+
+.gradient-bg-footer {
+  background-color: #1baf8f;
+  background-image: 
+  linear-gradient(0deg, rgba(9, 121, 45, 0.542) 0%, rgb(27, 175, 143) 100%);
+}
+
+
+.gradient-bg-services {
+  background-color:#2be591df;
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+    radial-gradient(at 50% 100%, hsla(225,39%,25%,1) 0, transparent 50%);
+}
+
+
+.blue-glassmorphism {
+  background: rgba(24, 32, 81, 0.4);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+
+.white-glassmorphism {
+  background: rgba(19, 91, 37, 0.05);
+  border-radius: 16px;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+
+.eth-card {
+  background-image: 
+  radial-gradient(at 20% 20%, rgb(37, 97, 54), transparent),
+  radial-gradient(at 80% 20%, rgb(27, 57, 34), transparent),
+  radial-gradient(at 90% 80%, rgb(28, 208, 85), transparent),
+  radial-gradient(at 20% 80%, rgb(21, 90, 38), transparent);
+}
+
+
+.text-gradient {
+  background-color: #fff;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+
+@layer utilities {
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    @apply appearance-none;
+  }
+}
+
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
