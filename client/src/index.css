@@ -74,6 +74,11 @@ body {
   radial-gradient(at 20% 80%, rgb(21, 90, 38), transparent);
 }
 
+.gradient-bg-content {
+  background-color: #1baf8f;
+  background-image: 
+    radial-gradient(at 0% 100%, rgb(35, 202, 133) 0, transparent 50%), 
+}
 
 .text-gradient {
   background-color: #fff;

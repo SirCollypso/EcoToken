@@ -40,8 +40,34 @@ const EventCard = ({ id, reward, description, rating}) => {
   );
 };
 
+const OngoingEventCard = ({ id, organizer, reward, description, rating}) => {
+
+  return (
+    <div className="blue-glassmorphism m-4 flex flex-1
+      2xl:min-w-[450px]
+      2xl:max-w-[500px]
+      sm:min-w-[270px]
+      sm:max-w-[300px]
+      min-w-full
+      flex-col p-3 rounded-md hover:shadow-2xl"
+    >
+      <div className="flex flex-col items-center w-full mt-3">
+        <div className="display-flex justify-start w-full mb-6 p-2">
+        <p className="text-white text-base">Event ID: {id}</p>
+          <a href={`https://sepolia.etherscan.io/address/${organizer}`} target="_blank" rel="noreferrer">
+            <p className="text-white text-base">Organizer: {shortenAddress(organizer)}</p>
+          </a>
+          <p className="text-white text-base">Reward: {reward} EcoTokens</p>
+          <p className="text-white text-base">Description: {description}</p>
+          <p className="text-white text-base">Rating: {rating}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const BusinessMain = () => {
-  const { currentAccount, connectWallet, clientBalance, businessStatus, registerAsBusiness, createdEvents, createEvent, markPartcipant, isLoading, handleBusinessChange, businessFormData } = useContext(EcoTokenContext);
+  const { currentAccount, baseValueEth, connectWallet, clientBalance, businessStatus, registerAsBusiness, createdEvents, ongoingEvents, createEvent, markPartcipant, isLoading, handleBusinessChange, businessFormData } = useContext(EcoTokenContext);
 
   const handleMarkSubmit = (e) => {
     const { address, eventID } = businessFormData;
@@ -114,13 +140,22 @@ const BusinessMain = () => {
               </div>
             </div>
 
+            <div className="flex flex-col md:p-12 py-12 px-4">
+              <h3 className="text-white text-3xl text-center my-2">Ongoing Events</h3>
+              <div className="flex flex-wrap justify-center items-center mt-10">
+                {[...ongoingEvents].reverse().map((event, i) => (
+                  <OngoingEventCard key={i} {...event} />
+                ))}
+              </div>
+            </div>
+
           </div>
           ) 
         : (
           <div className="flex flex-1 justify-center items-center flex-col mf:mr-10 md:p-20 py-12 px-4">
             
-            <h1 className="text-center sm:text-5xl text-white text-gradient py-1">Register as Business</h1>
-            <p className="text-center mt-5 text-white font-light md:w-9/12 w-11/12 text-base">Description.</p>
+            <h1 className="text-center sm:text-5xl text-white text-gradient py-2">Register as Business</h1>
+            <p className="text-center mt-5 text-white font-light md:w-9/12 w-11/12 text-base">Register as a Business account and start organizing sustainable events right away.</p>
             
             {!currentAccount && (
               <button type="button" onClick={connectWallet} className="flex flex-row justify-center items-center my-5 bg-[#1baf8f] p-3 rounded-full cursor-pointer hover:bg-[#06416d]">
@@ -132,7 +167,7 @@ const BusinessMain = () => {
             {(currentAccount && !businessStatus) && (
               <button type="button" onClick={registerAsBusiness} className="flex flex-row justify-center items-center my-5 bg-[#1baf8f] p-3 rounded-full cursor-pointer hover:bg-[#06416d]">
                 <AiFillPlayCircle className="text-white mr-2" />
-                <p className="text-white text-base font-semibold">Register as Business for 1 WEI</p>
+                <p className="text-white text-base font-semibold">Register as Business for {baseValueEth} ETH</p>
               </button>
             )}
 

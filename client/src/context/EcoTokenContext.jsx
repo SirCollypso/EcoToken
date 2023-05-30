@@ -19,6 +19,7 @@ export const EcoTokenProvider = ({ children }) => {
   const [businessFormData, setBusinessFormData] = useState({ address: "", eventID: "", description: "", reward: "" });
   const [individualFormData, setIndividualFormData] = useState({ address: "", amount: "", eventID: "", score: "" });
   const [currentAccount, setCurrentAccount] = useState("");
+  const [baseValueEth, setBaseValueEth] = useState(localStorage.getItem("baseValueEth"));
   const [businessStatus, setBusinessStatus] = useState(localStorage.getItem("businessStatus"));
   const [clientBalance, setClientBalance] = useState(localStorage.getItem("clientBalance"));
   const [createdEvents, setCreatedEvents] = useState([]);
@@ -40,6 +41,7 @@ export const EcoTokenProvider = ({ children }) => {
       const accounts = await ethereum.request({ method: "eth_accounts" });
       if (accounts.length) {
         setCurrentAccount(accounts[0]);
+        updateBaseValueEth();
         await updateBusinessStatus();
         await updateClientBalance();
         if (businessStatus === true) {
@@ -67,6 +69,19 @@ export const EcoTokenProvider = ({ children }) => {
     }
   };
 
+  const updateBaseValueEth = async () => {
+    try {
+      if (ethereum) {
+        const ecoTokenContract = await createEthereumContract();
+        const currentBaseValueEth = await ecoTokenContract.getBaseValueEth();
+        setBaseValueEth(ethers.formatEther(currentBaseValueEth).toString());
+      }
+    } catch (error) {
+      console.log(error);
+      throw new Error("No ethereum object");
+    }
+  };
+
   const updateBusinessStatus = async () => {
     try {
       if (ethereum) {
@@ -84,7 +99,8 @@ export const EcoTokenProvider = ({ children }) => {
     try {
       if (ethereum) {
         const ecoTokenContract = await createEthereumContract(); 
-        const options = {value: 1};
+        const currentBaseValueEth = await ecoTokenContract.getBaseValueEth();
+        const options = {value: currentBaseValueEth};
         const transactionHash = await ecoTokenContract.registerAsBusiness(options);
         setIsLoading(true);
         console.log(`Loading - ${transactionHash.hash}`);
@@ -259,6 +275,7 @@ export const EcoTokenProvider = ({ children }) => {
       value={{
         currentAccount,
         connectWallet,
+        baseValueEth,
         clientBalance,
         businessStatus,
         registerAsBusiness,
