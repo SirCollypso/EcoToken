@@ -6,7 +6,7 @@ const AboutContent = ({positionId, logo}) => {
     <div className="h-full flex w-full justify-center items-center m-10">
       {
             (positionId%2 === 1 )? (
-        <div className="flex mf:flex-row flex-row items-center justify-between w-3/5">
+        <div className="flex flex-col md:flex-row items-center justify-between w-3/5">
             <div className="flex items-center flex-col w-1/2 justify-center">
                 <div className="flex flex-col items-center">
                     <h1 className="text-4xl sm:text-5xl text-white text-gradient py-1 w-full">
@@ -19,13 +19,13 @@ const AboutContent = ({positionId, logo}) => {
                    
             </div>
             <div className="flex items-center flex-col w-1/2">
-                <img src={logo} alt='picture' className="w-1/2"/>
+                <img src={logo} alt='picture' className="w-2/3"/>
             </div>
             
         </div>) : (
-        <div className="flex mf:flex-row flex-row items-center justify-between w-3/5">
+        <div className="flex flex-col md:flex-row items-center justify-between w-3/5">
             <div className="flex items-center flex-col w-1/2">
-                <img src={logo} alt='picture' className="w-1/2"/>
+                <img src={logo} alt='picture' className="w-2/3"/>
             </div>
             <div className="flex items-center flex-col w-1/2 justify-center">
                 <div className="flex flex-col items-center">
