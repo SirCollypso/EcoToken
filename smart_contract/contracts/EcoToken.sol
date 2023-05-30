@@ -56,6 +56,7 @@ contract EcoToken {
     }
 
     function createEvent(string memory _description, uint256 _reward) external onlyBusinessClient {
+        require(_reward >= 1, "Reward should be at least 1 EcoToken");
         Event memory newEvent = Event({
             id: events.length,
             description: _description,
@@ -71,6 +72,7 @@ contract EcoToken {
         Event storage eventItem = events[_eventId];
         require(eventItem.organizer == msg.sender, "Only the event organizer can mark participants");
         require(!clients[_participant].isBusiness, "Only non-business clients can be marked as participants");
+        require(participated[_participant][_eventId] != true, "You cannot mark a participant in the same event twice");
         require(clients[eventItem.organizer].ecoTokenBalance >= eventItem.reward, "Insufficient EcoTokens");
 
         participated[_participant][_eventId] = true;
@@ -103,6 +105,18 @@ contract EcoToken {
         
         clients[msg.sender].ecoTokenBalance = clients[msg.sender].ecoTokenBalance - _amount;
         clients[_to].ecoTokenBalance = clients[_to].ecoTokenBalance + _amount + bonusEcotokens;
+    }
+
+    function getBaseValueEth() external view returns (uint256) {
+        return baseValueEth;
+    }
+
+    function getBaseValueEcoToken() external view returns (uint256) {
+        return baseValueEcoToken;
+    }
+
+    function getRewardRate() external view returns (uint256) {
+        return rewardRate;
     }
 
     function getClientBalance() external view returns (uint256) {

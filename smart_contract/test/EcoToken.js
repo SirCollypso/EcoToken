@@ -21,6 +21,13 @@ describe("EcoToken", function () {
 
   describe("deployment", function () {
     
+    it("Should correctly set default constants", async function () {
+      const {ecoToken, addr1} = await loadFixture(deployEcoTokenFixture);
+      expect(await ecoToken.connect(addr1).getBaseValueEth()).to.equal(3);
+      expect(await ecoToken.connect(addr1).getBaseValueEcoToken()).to.equal(100);
+      expect(await ecoToken.connect(addr1).getRewardRate()).to.equal(1);
+    });
+
     it("Should correctly set default balance", async function () {
       const {ecoToken, addr1, addr2, addr3} = await loadFixture(deployEcoTokenFixture);
       expect(await ecoToken.connect(addr1).getClientBalance()).to.equal(0);
@@ -90,6 +97,7 @@ describe("EcoToken", function () {
       await ecoToken.connect(addr1).createEvent("Event1", 1);
       await ecoToken.connect(addr2).createEvent("Event2", 1);
       await expect(ecoToken.connect(addr3).createEvent("Event3", 1)).to.be.revertedWith("Only business clients can call this function");
+      await expect(ecoToken.connect(addr1).createEvent("Event4", 0)).to.be.revertedWith("Reward should be at least 1 EcoToken");
     });
 
   });
@@ -136,7 +144,7 @@ describe("EcoToken", function () {
       await expect(ecoToken.connect(addr1).markParticipant(addr2.address, 1)).to.be.revertedWith("Only non-business clients can be marked as participants");
       await expect(ecoToken.connect(addr1).markParticipant(addr3.address, 0)).to.be.revertedWith("Insufficient EcoTokens");
       await ecoToken.connect(addr1).markParticipant(addr3.address, 1);
-      await expect(ecoToken.connect(addr1).markParticipant(addr3.address, 1)).to.be.revertedWith("Insufficient EcoTokens");
+      await expect(ecoToken.connect(addr1).markParticipant(addr3.address, 1)).to.be.revertedWith("You cannot mark a participant in the same event twice");
     });
 
   });
